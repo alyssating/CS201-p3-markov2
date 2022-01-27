@@ -3,38 +3,40 @@
 This is the directions document for Project P2 Markov Part 1 in CompSci 201 at Duke University, Spring 2022. Please follow the directions carefully while you complete the project. Please refer to the directions at https://coursework.cs.duke.edu/201spring22/p3-markov-part-2 rather than any forks or local copies in the event that any changes are made to the document.
 
 
+## Outline
+
 - [Introduction](#introduction)
-    - [High-Level TODOs](#high-level-todos)
-    - [Git](#git)
-- [Markov Model and BaseMarkov Explained](#markov-model-and-basemarkov-explained)
-    - [BaseMarkov](#basemarkov)
-    - [getRandomText](#getrandomtext)
-    - [getRandomText Example](#getrandomtext-example)
-    - [Complexity of BaseMarkov.getRandomText](#complexity-of-basemarkovgetrandomtext)
-- [Designing and Testing EfficientMarkov](#designing-and-testing-efficientmarkov)
-    - [Background on EfficientMarkov](#background-on-efficientmarkov)
-    - [The EfficientMarkov Class](#the-efficientmarkov-class)
-    - [Testing EfficientMarkov](#testing-efficientmarkov)
-- [Overview of Programming: WordMarkov](#overview-of-programming-wordmarkov)
-    - [Implementing EfficientWordMarkov](#implementing-efficientwordmarkov)
-- [Submitting, Analysis, Reflect](#submitting-analysis-reflect)
-    - [Code](#code)
-    - [Analysis](#analysis)
-    - [Reflect](#reflect)
-    - [Grading](#grading)
-- [Appendix](#appendix)
-    - [Assignment FAQ](#assignment-faq)
-    - [Output of MarkovDriver](#output-of-markovdriver)
-    - [What is a Markov Model?](#what-is-a-markov-model)
-    - [Example Output of WordMarkov](#example-output-of-wordmarkov)
+- [Running and Understanding the Starter Code](#running-and-understanding-the-starter-code)
+- [Developing and Testing EfficientMarkov](#developing-and-testing-efficientmarkov)
+- [Developing and Testing EfficientWordMarkov](#developing-and-testing-efficientwordmarkov)
+- [Benchmarking and Analysis](#benchmarking-and-analysis)
+- [Submitting, Reflect, Grading](#submitting-reflect-grading)
+- [Appendix FAQs](#appendix-faqs)
 
 
 ## Introduction
 
-This is the second part of [Project P2, Markov Part 1](https://coursework.cs.duke.edu/201spring22/p2-markov-part-1). In part 1, you developed a `WordGram` class to represent an immutable sequence of a given number of words (2-grams, 3-grams, etc.). In part 2 (this part) you will use a generative model to create realistic looking text in a data-driven algorithmic way using a Markov Process. The second version of this generative model uses `WordGram`s as its basic object. You do **not** need to use your own `WordGram` implementaiton for this part, we have provided a complete implementation in the starter code for this project.
+This is the second part of [Project P2, Markov Part 1](https://coursework.cs.duke.edu/201spring22/p2-markov-part-1). In part 1, you developed a `WordGram` class to represent an immutable sequence of a given number of words (2-grams, 3-grams, etc.). In part 2 (this part) you will use a generative model to create realistic looking text in a data-driven algorithmic way using a **Markov Model**. The first version of this generative model you develop uses Strings of characters as its basic object; the second version uses `WordGram`s as its basic object. You do **not** need to use your own `WordGram` implementaiton for this part, we have provided a complete implementation in the starter code for this project.
+
+The starter code includes correct but inefficient implementations of Markov Models for both Strings of characters (`BaseMarkov`) and `WordGram`s (`BaseWordMarkov`). Unlike previous projecs, your goal here is not just to write code that works, but to `extend` these models and make them more efficient using `HashMap` data structures. You will implement `EfficientMarkov` (an incomplete outline of which is included in the starter code) and `EfficientWordMarkov` (which you will create on your own), verify that they work the same as the inefficient `BaseMarkov` and `BaseWordMarkov`, and analyze the performance using a benchmarking program.
 
 
-### Project workflow
+### What is a Markov Model?
+
+An order-k Markov model uses strings of k characters to predict text: we call these *k-grams*. An order-2 Markov model uses two-character strings or *bigrams* to calculate probabilities in generating random letters. A string called the *training text* is used to calculate these probabilities. We walk through an example calculating the probabilities in the expandable section below. One can also use k-grams that are composed of words rather than letters. We use `WordGram` objects to represent these, but the logic is the same as that shown in the expandable section below, just for words instead of characters.
+
+<details>
+<summary>Expand for example calculation of probabilities</summary>
+
+For example, suppose that in the text we're using for generating random letters, the so-called training text, using an order-2 Markov model, the bigram `"th"` is followed 50 times by the letter `"e"`, 20 times by the letter `"a"`, and 30 times by the letter `"o"`, because the sequences `"the"`, `"tha"`, and `"tho"` occur 50, 20, and 30 times, respectively while there are no other occurrences of `"th"` in the text we're modeling. This suggests that random text that *looks similar to the training text* should most often have an `e` after `th`, and should have an `a` or `o` following with somewhat lower frequency.
+
+Concretely, while generating random text using an order-2 Markov process suppose we generate the bigram `"th"` --- then based on this bigram we must generate the next random character using the order-2 model. The next letter will be an 'e' with a probability of 0.5 (50/100); will be an 'a' with probability 0.2 (20/100); and will be an 'o' with probability 0.3 (30/100). If 'e' is chosen, then the next bigram used to calculate random letters will be `"he"` since the last part of the old bigram is combined with the new letter to create the next bigram used in the Markov process.
+
+Rather than using probabilities explicitly, your code will use them implicitly. You'll store 50 occurrences of `"e"`, 20 occurrences of `"a"` and 30 occurrences of `"o"` in an `ArrayList`. You'll then choose one of these at random. This will replicate the probabilities, e.g., of 0.3 for `"o"` since there will be 30 `"o"` strings in the 100-element `ArrayList`.
+
+</details>
+
+### Starter Code and Using Git
 You must have installed all software (Java, Git, VS Code) before you can complete the project.You can find the [directions for installation here](https://coursework.cs.duke.edu/201-public-documentation/resources-201/-/blob/main/installingSoftware.md).
 
 We'll be using Git and the installation of GitLab at [coursework.cs.duke.edu](https://coursework.cs.duke.edu). All code for classwork will be kept here. Git is software used for version control, and GitLab is an online repository to store code in the cloud using Git.
@@ -42,26 +44,242 @@ We'll be using Git and the installation of GitLab at [coursework.cs.duke.edu](ht
 **[This document details the workflow](https://coursework.cs.duke.edu/201-public-documentation/resources-201/-/blob/main/projectWorkflow.md) for downloading the starter code for the project, updating your code on coursework using Git, and ultimately submitting to Gradescope for autograding.** We recommend that you read and follow the directions carefully while working on a project! While coding, we recommend that you periodically (perhaps when completing a method or small section) push your changes as explained in Section 5.
 
 
-## Getting Started with Base Markov and Markov Driver
+## Running and Understanding the Starter Code
 
-The starter code provides `BaseMarkov` and `MarkovDriver`. You should be able to immediately run ...
+All Markov Models in this project must implement the `MarkovInterface` provided. The starter code provides two correct but inefficient implementations: `BaseMarkov` and `BaseWordMarkov`. `BaseMarkov` provides a correct but inefficient implementation of the generative Markov model for creating text using k-grams, and `MarkovDriver` uses such a model trained on some data to print text that is random but looks similar to the data on which the model was trained. 
 
-You'll create a more efficient version of the class `BaseMarkov` that generates random text using a Markov Model; the new class is named `EfficientMarkov`. You'll need to understand what a Markov Model is, how the `BaseMarkov` class works, and the ideas behind how to create the class `EfficientMarkov`. Your task in this part of the assignment is to create this more efficient class, verify that it works the same as the inefficient `BaseMarkov` class, and analyze the performance using a benchmarking program. To do this you'll need to understand how `BaseMarkov` works, how to make it more efficient using maps, and how the benchmarking program leverages inheritance and interfaces to run.
+You will `extend` these when creating your own `EfficientMarkov` and `EfficientWordMarkov` implementations, meaning you will *inherit* all of the instance variables and methods from those classes, but you will also override and change some aspects to make them more efficient. 
 
-An order-k Markov model uses strings of k-letters to predict text, these are called *k-grams*. It's also possible to use k-grams that are composed of words rather than letters. An order-2 Markov model uses two-character strings or *bigrams* to calculate probabilities in generating random letters. A string called the *training text* is used to calculate these probabilities. For more on this model, see the [appendix](#appendix), or see the example in the next section.
+The starter code also provides `MarkovDriver` which includes a psvm method for generating text using one of the models. You should be able to run the psvm method in `MarkovDriver` immediately. By default, the starter code uses `BaseMarkov` to create random text using k-characters at a time to predict text based on President Biden's 2021 State of the Union Address. You should see five different output examples of 144 characters each, generated with k ranging from 1 to 5. Expand below to see the expected output. Note that you should see the same text, but the time at the end will be different on your particular machine.
 
-
-### BaseMarkov
 <details>
-<summary>Click To Expand</summary>
+<summary>Expand here for example default output</summary>
 
-`BaseMarkov` provides simple implementations of the methods defined in the interface `MarkovInterface`. The important methods that will change to make the class more efficient are `setTraining` and `getFollows`. You'll `@Override` these methods when creating `EfficientMarkov`, but otherwise rely on inherited methods from `BaseMarkov`.
+```
+1 markov model with 144 chars
+----------------------------------
+r bus io vear mans anovine se futinybereagicorthences – min pl 
+anginsethec. lid Imint a me e estoreon We alel the tho Wed orreshilthe- 
+lrien tha 
+----------------------------------
+2 markov model with 144 chars
+----------------------------------
+com of rovestin thater the meris to becaust Chilly th. It’s itiand 
+Amerear precouleassarms on Just it usell cour con 9/11.3 muld 
+st an ton. Stax 
+----------------------------------
+3 markov model with 144 chars
+----------------------------------
+irst on pock of their a Medica’s demong Right ten andame failesses 
+at I know – it we cans by bet why time to said by more imple. 
+We ass the wron 
+----------------------------------
+4 markov model with 144 chars
+----------------------------------
+ life can will crising the faucet again. The world. Talk away. 
+So how right — and get by negotiating than 400,000 pharmacism 
+to be big tax brack 
+----------------------------------
+5 markov model with 144 chars
+----------------------------------
+permanent study shot an option during the productive diseases 
+opens without our high-speed international to Americans can be 
+first 100 Days of j 
+----------------------------------
+total time = 0.054
+```
+
 </details>
 
-### getRandomText
-<details>
-<summary>Click To Expand</summary>
+You can also modify the psvm method of `MarkovDriver` to use `BaseWordMarkov` (also provided to you in the starter code) with `WordGram` objects. To do so, simply uncomment the line of code `MarkovInterface<WordGram> wmm = new BaseWordMarkov();` and pass the `wmm` object to the call to the static `markovGenerate()` method rather than `standard`. Still using President Biden's 2021 State of the Union Address as the training text, you should see the output available in the expanded section below.
 
+<details>
+<summary>Expand here for example output using `WordGram`s</summary>
+
+```
+1 markov model with 807 chars
+----------------------------------
+the 21st Century. We cannot walk away from their net worth increase 
+by man—made and save lives. And we will long endure is familiar, 
+this podium, and I know the American households. We’ve done nothing 
+– Democrats and billionaires who knows what it’s in that have 
+to leave. Our grids are so their income tax loopholes and it 
+will crack down on how do not flinch. At the extraordinary times 
+as we save lives. And all the 21st Century. That’s estimated 
+to their fair share – other countries beset by man—made and stern 
+deterrence. And I’m introducing the future for a college degree. 
+The American valor and be guided by proving that we can’t do 
+with Congress should be done. Now, if Congress and the vicious 
+hate crimes we’ve always been a child who have to deliver. We’re 
+marshalling every shot dead. 250 shot 
+----------------------------------
+2 markov model with 807 chars
+----------------------------------
+survive. It did. But the struggle is far from over. The question 
+of whether our democracy since the Great Depression. The worst 
+economic crisis since the Great Depression. The worst pandemic 
+in a direct and proportionate way to Russia’s interference in 
+our mutual interests. As we gather here tonight, the images of 
+the loopholes that allow Americans who still don’t have it. This 
+will help millions of good paying jobs – jobs Americans can raise 
+their families on. And all the crises of our power. And in my 
+first day in office. And I need not tell anyone this, but gun 
+violence is an epidemic in America. 100 days ago, America’s house 
+was on fire. We had to act. We have stared into an abyss of insurrection 
+and autocracy — of pandemic and pain — and revitalizing our democracy. 
+And winning the future for 
+----------------------------------
+3 markov model with 806 chars
+----------------------------------
+we need to ensure greater equity and opportunity for women. Let’s 
+get the Paycheck Fairness Act to my desk as soon as possible. 
+I also hope Congress can get to my desk the Equality Act to protect 
+Asian Americans and Pacific Islanders from the vicious hate crimes 
+we’ve seen this past year – and for too long. I urge the House 
+to do the same and send that legislation to my desk for equal 
+pay. It’s long past time. Finally, the American Jobs Plan do 
+not require a college degree. 75% do not require an associate’s 
+degree. The American Jobs Plan creates jobs replacing 100% of
+the nation’s lead pipes and service lines so every American, 
+so every child – can turn on the faucet and be certain to drink 
+clean water. It creates jobs to upgrade our transportation infrastructure. 
+Jobs modernizing roads, bridges 
+----------------------------------
+4 markov model with 809 chars
+----------------------------------
+our tables. Immigrants have done so much for America during the 
+pandemic – as they have throughout our history. The country supports 
+immigration reform. Congress should act. We have a giant opportunity 
+to bend to the arc of the moral universe toward justice. Real 
+justice. And with the plans I outlined tonight, we have a real 
+chance to root out systemic racism in our criminal justice system. 
+And to enact police reform in George Floyd’s name that passed 
+the House already. I know the Republicans have their own ideas 
+and are engaged in productive discussions with Democrats. We 
+need to work together to find a consensus. Let’s get it done 
+this year. This is all about a simple premise: Health care should 
+be a right, not a privilege in America. So how do we pay for 
+my Jobs and Family Plans? I’ve made clear 
+----------------------------------
+5 markov model with 837 chars
+----------------------------------
+soul of America – we need to protect the sacred right to vote. 
+More people voted in the last presidential election than ever 
+before in our history – in the middle of one of the worst pandemics 
+ever. That should be celebrated. Instead it’s being attacked. 
+Congress should pass H.R. 1 and the John Lewis Voting Rights 
+Act and send them to my desk right away. The country supports 
+it. Congress should act. As we gather here tonight, the images 
+of a violent mob assaulting this Capitol—desecrating our democracy—remain 
+vivid in our minds. Lives were put at risk. Lives were lost. 
+Extraordinary courage was summoned. The insurrection was an existential 
+crisis—a test of whether our democracy could survive. It did. 
+But the struggle is far from over. The question of whether our 
+democracy will long endure is both ancient and urgent. As old 
+as 
+----------------------------------
+total time = 0.080
+
+```
+
+</details>
+
+You can also change the data source used for training the model. To do so, you just need to change the line `String filename = "data/biden-2021.txt";` inside the psvm method of `MarkovDriver` to use `data/X` where `X` is any of the file names inside of the `data` folder. For example, using `data/alice.txt` (the text of the book Alice in Wonderland) and `BaseWordMarkov` as described above should generate the following output.
+
+<details>
+<summary>Expand for example output using alice.txt</summary>
+
+```
+1 markov model with 785 chars
+----------------------------------
+a trademark license fee to the Lizard as you to her going, though 
+she had gone. `Well! WHAT things?' said the other: the little 
+chin in that you like,' said the party that SOMEBODY ought to 
+do not, would feel it gloomily: then I'll take this as well enough; 
+don't think,' Alice went up like then?' And they met in a little 
+door that were perfectly quiet thing,' Alice said; but all sorts 
+of what am now? That'll be two and in her head, and other equivalent 
+proprietary form, including legal rights. INDEMNITY You MUST 
+have this be jury," Said the real nose; also provide on the Knave 
+was quite pleased so shiny?' Alice looked down and you got settled 
+down `important,' and found herself `Suppose we had struck her 
+head!' the end.' `If you're so she heard him two, it `arrum.') 
+`An arm, 
+----------------------------------
+2 markov model with 744 chars
+----------------------------------
+Alice; `I daresay it's a set of verses.' `Are they in the distance, 
+and she swam about, trying to touch her. `Poor little thing!' 
+said Alice, `a great girl like you,' (she might well say this), 
+`to go on with the Dutchess, it had made. `He took me for a few 
+minutes to see a little worried. `Just about as it turned a corner, 
+`Oh my ears and whiskers, how late it's getting!' She was close 
+behind it was growing, and very neatly and simply arranged; the 
+only one who had got its head to keep back the wandering hair 
+that curled all over with fright. `Oh, I know!' exclaimed Alice, 
+who always took a minute or two, and the little door: but, alas! 
+either the locks were too large, or the key was too much frightened 
+that she had to leave off this 
+----------------------------------
+3 markov model with 754 chars
+----------------------------------
+some `unimportant.' Alice could see it trying in a helpless sort 
+of way to fly up into a tree. By the time she went on planning 
+to herself how she would keep, through all her riper years, the 
+simple and loving heart of her childhood: and how she would gather 
+about her other little children, and make THEIR eyes bright and 
+eager with many a strange tale, perhaps even with the dream of 
+Wonderland of long ago: and how she would gather about her other 
+little children, and make THEIR eyes bright and eager with many 
+a strange tale, perhaps even with the dream of Wonderland of 
+long ago: and how she would feel with all their simple sorrows, 
+and find a pleasure in all their simple joys, remembering her 
+own child-life, and the happy summer days. THE END  
+----------------------------------
+4 markov model with 827 chars
+----------------------------------
+of settling all difficulties, great or small. `Off with his head!' 
+or `Off with her head!' Those whom she sentenced were taken into 
+custody by the soldiers, who of course had to leave off being 
+arches to do this, so that by the end of the bill, "French, music, 
+AND WASHING--extra."' `You couldn't have wanted it much,' said 
+Alice; `living at the bottom of a well?' The Dormouse again took 
+a minute or two to think about it, and then said, `It was a treacle-well.' 
+`There's no such thing!' Alice was beginning very angrily, but 
+the Hatter and the March Hare and his friends shared their never-ending 
+meal, and the shrill voice of the Queen ordering off her unfortunate 
+guests to execution--once more the pig-baby was sneezing on the 
+Duchess's knee, while plates and dishes crashed around it--once 
+more the shriek of the Gryphon, 
+----------------------------------
+5 markov model with 727 chars
+----------------------------------
+to ME,' said Alice hastily; `but I'm not looking for eggs, as 
+it happens; and if I was, I shouldn't want YOURS: I don't like 
+them raw.' `Well, be off, then!' said the Pigeon in a tone of 
+the deepest contempt. `I've seen a good many little girls in 
+my time, but never ONE with such a neck as that! No, no! You're 
+a serpent; and there's no use denying it. I suppose you'll be
+telling me next that you never tasted an egg!' `I HAVE tasted 
+eggs, certainly,' said Alice, who was a very truthful child; 
+`but little girls eat eggs quite as much as serpents do, you 
+know.' `I don't believe it,' said the Pigeon; `but if they do, 
+why then they're a kind of serpent, that's all I can say.' This 
+was such a new idea to Alice, that she was 
+----------------------------------
+total time = 0.269
+
+```
+</details>
+
+Two particular things you might note about using `data/alice.txt` instead of `data/biden-2021.txt`. First and most obviously, the text looks very different based on the different language used in the two training texts. Second, the *total time* it took to generate the text using `data/alice.txt` was much longer than the time it took using `data/biden-2021.txt`.
+
+### BaseMarkov
+
+`BaseMarkov` provides simple implementations of the methods defined in the interface `MarkovInterface`. Your `EfficientMarkov` will `extend` the `BaseMarkov` class, meaning it wil have, by default, have the same instance variables and methods. To make it more efficient, you will `@Override` the `setTraining` and `getFollows` methods inherited from `BaseMarkov`. Before describing how to create the more efficient version, read the expandable sections below to understand how the `BaseMarkov` versions work.
+
+<details>
+<summary>Expand for description of `getRandomText()` in `BaseMarkov`</summary>
 
 The method we want to optimize to be more efficient is method `getRandomText()`. At a high level, the method works as follows (the exact code for `BaseMarkov.getRandomText()` is provided below). 
 
@@ -74,12 +292,10 @@ The method we want to optimize to be more efficient is method `getRandomText()`.
     - Otherwise,
         - Take the last *k*-1 characters of `current` and append this character onto the end of `current`.
 
-
 </details>
 
-### getRandomText Example
 <details>
-<summary>Click To Expand</summary>
+<summary>Expand for example of `getRandomText()` in `BaseMarkov`</summary>
 
 Here is an example of how the algorithm works. Suppose we're using an order 3-gram (i.e., k=3) and the training text for generating characters is 
 
@@ -95,31 +311,43 @@ Then the algorithm would proceed as follows:
 
 </details>
 
-### Complexity of BaseMarkov.getRandomText
 <details>
-<summary>Click To Expand</summary>
+<summary>Expand for discussion of complexity of `getRandomText()` in `BaseMarkov`</summary>
 
-
-As explained in the previous section, generating each random character requires scanning the entire training text to find the following characters when `getFollows` is called. Generating `T` random characters will call `getFollows` `T` times. Each time the entire text is scanned. If the text contains `N` characters, then generating `T` characters from a training text of size `N` is an O(`NT`) operation - meaning that the running time scales with the product of `N` and `T`.
+Generating each random character requires scanning the entire training text to find the following characters when `getFollows` is called. Generating `T` random characters will call `getFollows` `T` times. Each time the entire text is scanned. If the text contains `N` characters, then generating `T` characters from a training text of size `N` is an O(`NT`) operation - meaning that the running time scales with the product of `N` and `T`.
 </details>
 
+
+## Developing and Testing EfficientMarkov
+
+The starter code should already include `EfficientMarkov`. You will note that it `extends BaseMarkov`, meaning that every object of `EfficientMarkov` also has all of the instance variables and methods included in `BaseMarkov`, with the same implementation of those methods by default (this is called **inheritance** in object-oriented programming). To `EfficientMarkov` more efficient, you will see that the starter code `@Override`s two methods: `setTraining` and `getFollows`. You need to complete the implementation of these two methods as described below.
+
+<details>
+<summary>Expand for Details on the constructor for EfficientMarkov</summary>
+
+One constructor has the order of the markov model as a parameter and the other default constructor calls `this(3)` to set the order to three (calling this(3) invokes the other parameterized constructor). The parameterized constructor first calls `super(order)` to initialize inherited state (this call invokes the constructor of the "parent" class) --- then initializes the instance variable `myMap` to a `HashMap`. 
+
 </details>
 
-## Designing and Testing EfficientMarkov
+### Reasoning about Efficiency of `EfficientMarkov`
+
+Calling `BaseMarkov.getFollows` requires looping over the training text of size *N*. In the class `EfficientMarkov`, you'll improve the efficiency of `getFollows` by making it a constant time operation. In order to accomplish this, you will use the `HashMap` instance variable called `myMap` in `getFollows`. 
+
+In `EfficientMarkov`, instead of rescanning the entire text of *N* characters each time `getFollows` is called (as in `BaseMarkov`), the `setTraining` method should instead scan through the training text of size *N* once and store each unique k-gram as a key in the instance variable `myMap`, with the characters/single-char strings that follow the k-gram in a list associated as the value of the key. Then, `getFollows(key)` should simply perform a lookup operation in `myMap` to return the list that follows `key`.
+
+Algorither, this should result in a complexity of O(*N*+*T*) for `EfficientMarkov`: `*N*` to run `setTraining` once, and then `*T*` calls to the now constant time `getFollows` method to generate `*T*` random characters. We call this linear complexity as opposed to the O(*NT*) quadratic complexity of `BaseMarkov`.
+
+
+### Implementing setTraining
+
+You must set `myText` to the parameter text as the first line in your new `setTraining` implementation. You can do this directly, or by calling `super.setTraining(text)`.
+
+For `getFollows` to function correctly, even the first time it is called, you'll clear and initialize the map when the overridden method `setTraining` method is called. At the beginning of your method, after setting the value of `myText`, write `myMap.clear()` to accomplish this.
+
+Now implement the `setTraining` method. The discussion above about the efficiency of `EfficientMarkov` introduces how the method should work, we also provide a detailed example in the expandable section below. **The example also highlights the PSEUDO_EOS character, an important special case.**
+
 <details>
-<summary>Click To Expand</summary>
-
-You'll need to design, develop, test, and benchmark the new class. You'll create this class and make it extend `BaseMarkov` thus inheriting all its methods and protected instance variables. You'll need to create two constructors, see `BaseMarkov` for details. You'll inherit all the methods of `BaseMarkov` and you'll need to `@Override` two of them: `setTraining` and `getFollows` as described below.  The other methods and instance variables are simply inherited.
-
-### Background on EfficientMarkov
-<details>
-<summary>Click To Expand</summary>
-
-Calling `BaseMarkov.getFollows` requires looping over the training text of size *N*. In the class `EfficientMarkov`, you'll improve the efficiency of `EfficientMarkov.getFollows` by making it a constant time operation. In order to accomplish this, you'll need to create and initialize a `HashMap` instance variable used in `getFollows`. 
-
-This means that in `EfficientMarkov`, we will scan through the training text of size *N* once before generating *T* random characters by calling `getFollows` *T* times.This makes `EfficientMarkov` text generation an O(*N*+*T*) operation instead of the O(*NT*) for `BaseMarkov` - that is, the running time scales with the sum of *N* and *T* instead of the product. We call this linear growth instead of quadratic.
-
-Instead of rescanning the entire text of *N* characters as in `BaseMarkov`, you'll write code to store each unique k-gram as a key in the instance variable `myMap`, with the characters/single-char strings that follow the k-gram in a list associated as the value of the key. This will be done in the overridden method `EfficientMarkov.setTraining`. In the constructor, you'll create an instance variable `myMap` and fill it with keys and values in the method `EfficientMarkov.setTraining`.
+<summary>Expand for example of EfficientMarkov and PSEUDO_EOS</summary>
 
 **The keys in `myMap` are k-grams in a k-order Markov model**. Suppose we're creating an order-3 Markov Model and the training text is the string `"bbbabbabbbbaba"`. Each different k-gram in the training text will be a key in the map (e.g. `"bbb"`). **The value associated with each k-gram key is a list of single-character strings that follow the key in the training text (e.g. {`"a"`, `"a"`, `"b"`})**.  *Your map will have Strings as keys and each key will have an `ArrayList<String>` as the corresponding value.*
 
@@ -128,27 +356,6 @@ Let’s consider other 3-grams in the training text. The 3-letter string `"bba"`
 What about the 3-letter string `"aba"`? It only occurs once, and it occurs at the end of the string, and thus is not followed by any characters. So, if our 3-gram is ever `"aba"` we will always end the text with that 3-gram. Suppose instead, there is one instance of `"aba"` followed by a `'b'` and another instance at the end of the text, then if our current 3-gram was `"aba"` we would have a 50% chance of ending the generation of random text early.
 
 To represent this special case in our structure, we say that `"aba"` here is followed by an end-of-string (EOS) character. This isn't a real character, but a special String/character we'll use to indicate that the process of generating text is over.***While generating text, if we randomly choose the end-of-string character to be our next character, then instead of actually adding a character to our text, we simply stop generating new text and return whatever text we currently have.*** For this assignment, to represent an end-of-string character you'll use the static constant `PSEUDO_EOS` – see `MarkovModel.getRandomText` method for how this constant is used when generating random text.
-
-</details>
-
-
-### Constructors in EfficientMarkov
-<details>
-<summary>Click To Expand</summary>
-
-One constructor has the order of the markov model as a parameter and the other,default constructor calls `this(3)` to set the order to three. The parameterized constructor you write will first call `super(order)` to initialize inherited state --- you'll then initialize the instance variable `myMap` to a `HashMap`. 
-
-</details>
-
-### Building myMap in setTraining
-<details>
-<summary>Click To Expand</summary>
-
-You must set `myText` to the parameter text as the first line in your new `setTraining` implementation. You can do this directly, or by calling `super.setTraining(text)`.
-
-For `getFollows` to function correctly, even the first time it is called, you'll clear and initialize the map when the overridden method `setTraining` method is called. At the beginning of your method, after setting the value of `myText`, write `myMap.clear()` to accomplish this.
-
-Implement the method according to the background. As a refresher, here are the list of steps you need to complete:
 
 The map will be constructed in the parameterized constructor and keys/values added in this method. To continue with the previous example, suppose we're creating an order-3 Markov Model and the training text is the string `"bbbabbabbbbaba"`.
 
@@ -161,96 +368,60 @@ The map will be constructed in the parameterized constructor and keys/values add
 | `"aba"` | `{PSEUDO_EOS}` |
 
 
-In processing the training text from left-to-right, e.g., in the method `setTraining`, we see the following 3-grams starting with the left-most 3-gram `“bbb”`. Your code will need to generate every 3-gram in the text as a possible key in the map you'll build. Use the `String.substring()` method to create substrings of the appropriate length, i.e., `myOrder`. In this example the keys/Strings you'll generate are:
+In processing the training text from left-to-right, e.g., in the method `setTraining`, we see the following 3-grams starting with the left-most 3-gram `“bbb”`. Your code will need to generate every 3-gram in the text as a possible key in the map you'll build. In this example the keys/Strings you'll generate are:
 
 `bbb` -> `bba` -> `bab` -> `abb` -> `bba` -> `bab` -> `abb` -> `bbb` -> `bbb` -> `bba` -> `bab` -> `aba`
 
-You'll create these using `myText.substring(index, index+myOrder)` if `index` is accessing all valid indices.
+You can use the `String.substring()` method ([documentation here](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html#substring(int,int)) to create substrings of the appropriate length, i.e., `myOrder`. You will need to reason about how to loop over the training text and what values to pass for the `beginIndex` and `endIndex` (hint: they need to be related to the index you are using to loop over the training text!) of the `substring` method in order to create all of the possible substrings. Remember that each one should be of length `myOrder`, for example `substring(0, myOrder)` would be the first.
 
-As you create these keys, you'll store them in the map and add each of the following single-character strings to the ArrayList value associated with the 3-gram key.
+As you create these keys, you'll store them in `myMap` and add each of the following single-character strings to the ArrayList value associated with the key.
 
 For example, you'd expect to see these keys and values for the string `"bbbabbabbbbaba"`. The order of the keys in the map isn't known, but for each key the order of the single-character strings should be as shown below -- the order in which they occur in the training text.
 
-</details>
+</details> 
 
-### Method getFollows in EfficientMarkov
-<details>
-<summary>Click to Expand</summary>
 
-This method simply looks up the key in a map and returns the associated value: an `ArrayList` of single-character strings that was created when `setTraining` is called. If the key isn't in the map you should throw an exception, e.g., 
+### Implementing getFollows
+
+This method simply looks up the key in `myMap` and returns the associated value: an `ArrayList` of single-character strings that was created when `setTraining` is called. If the key isn't in the map you should throw an exception as shown in the following code.
 
 `throw new NoSuchElementException(key+" not in map");`
 
 The code in this version of `getFollows` is constant time because if the key is in the map, the corresponding value is simply returned. The value for each key is set in the method `setTraining`.
 
-</details>
 
-### Testing EfficientMarkov
+### Running and Testing EfficientMarkov
+
+To test that your code is still correct but more efficient, you can run `MarkovDriver` (see [Running and Understanding the Starter Code](#running-and-understanding-the-starter-code)) twice using with everything the same except once using your `EfficientMarkov` model and the other time using the `BaseMarkov` model. You change this by uncommenting the line `MarkovInterface<String> efficient = new EfficientMarkov();` and then passing the `efficient` object to the call to the static `markovGenerate` method within the psvm method of `MarkovDriver`.  You should get the same text, but the running time (shown at the bottom of the output) should be less for `EfficientMarkov`.
+
+***Note on the random seed: You will see that `BaseMarkov` sets a `RANDOM_SEED` to `1234`. This is to ensure that running the same program on the same inputs twice generates the same output. We recommend you not change the seed while developing and testing your program so you can compare output. Also, if you change the seed later, be sure to set it back to `1234` for running JUnit tests or submitting to Gradescope.***  
+
+In addition to running `MarkovDriver` using `EfficientMarkov` and comparing the results to using `BaseMarkov`, we also provide JUnit tests in the `MarkovTest` class. ***You will need to change the class being tested that's returned by the method `getModel`***. See the [section in the P2 Markov Part 1 directions](https://coursework.cs.duke.edu/201spring22/p2-markov-part-1/-/tree/main#junit-tests) on how to run a Java program that uses JUnit tests.
+
+
+## Developing and Testing EfficientWordMarkov
+
+As discussed above in [Running and Understanding the Starter Code](#running-and-understanding-the-starter-code), if you change the `MarkovDriver` to use `BaseWordMarkov` instead of `BaseMarkov` then words rather than characters will be used to generate a model. Here, a k-gram is a sequence of *k* words, e.g., a `WordGram` rather than a String of k-characters. A working `WordGram` class just like the one you completed for P2 Markov Part 1 is included in the starter code.
+
+Just as you created `EfficientMarkov` by extending `BaseMarkov`, you'll create `EfficientWordMarkov` by extending `BaseWordMarkov`. You'll create two constructors and implement two methods similar to those in `EfficientMarkov`: `setTraining` and `getFollows`. The difference is that instead of String objects as keys in a map you'll be using `WordGram` objects as keys. 
+
+You must create the `EfficientWordMarkov` class from scratch; you're not provided with starter code. Create the file `EfficientWordMarkov.java` and model the class on the `EfficientMarkov` class you have already implemented and tested. We provide tips for implementing `EfficientWordMarkov` in the expandable section below, but not a step by step walkthrough; you will need to reason about how to adapt the code from `EfficientMarkov` to work with `WordGram` objects.
+
 <details>
-<summary>Click to Expand</summary>
+<summary>Expand for tips on implementing EfficientWordMarkov</summary>
 
-To test that your code is doing things faster and not differently, you can use the same text file and the same order *k* for k-grams for `EfficientMarkov` model. Simply use an `EfficientMarko`v object rather than a `BaseMarkov` object when running `MarkovDriver`. 
-
-***If you use the same seed in constructing the random number generator used in your new implementation, you should get the same text, but your code should be faster.*** You can use `MarkovDriver` to test this. Do not change the given random seed when testing the program, though you can change it when you'd like to see more humorous and different random text. You can change the seed when you're running the program, **but for testing and for submitting you should use the provided seed 1234.**  
-
-</details>
-
-
-
-### JUnit for EfficientMarkov
-<details>
-<summary>Click to Expand</summary>
-
-Use the JUnit tests in the `MarkovTest` class as part of testing your code. ***You will need to change the class being tested that's returned by the method `getModel`***. For discussion on using JUnit tests, see the [section in this document](https://coursework.cs.duke.edu/201-public-documentation/P2-Markov-Part-1/-/blob/main/README.md#junit-tests-explained) on how to run a Java program that uses JUnit tests. You may need to add JUnit 5 to the project -- you can do this by using option-enter and choosing that version of JUnit. On Windows machines use ALT-enter. Alternatively, right click any red text in IntelliJ relating to JUnit, click "Show Context Actions", and select the most recent version of JUnit.
+1. Use `WordGram` objects as keys in an instance variable map of type `HashMap<WordGram, ArrayList<String>>`.
+2. The instance variable String `myText` from `BaseMarkov` becomes `String[] myWords` in `BaseWordMarkov`.
+3. There should be two constructors, designed just like those in `EfficientMarkov` and using the same default order of 3. 
+4. In creating an array of words in the `setTraining` method, you can use `text.split("\\s+")` to process the String passed to `setTraining` into an array of "words" separated by whitespace. You'll see this code in `setTraining` method of `BaseWordMarkov`.
+5. Instead of using `substring()` to create each key, you'll create a new `WordGram` for every key in the map. Consider whether the the `shiftAdd` method might be convenient to use.
+6. Instead of using a one-character `String` to follow each key, you'll use the appropriate `String` in the `myWords` array as the string that follows each key.
+7. `getFollows` is essentially the same, just looking up in a different map.
 
 </details>
 
+To test your class, use it in the `MarkovDriver` program and compare the output to what's generated using `BaseWordMarkov` just as you did when [testing `EfficientMarkov`](#running-and-testing-efficientmarkov). Again, you should get the same results but in less time.
 
-
-### Debugging Your Code in EfficientMarkov
-<details>
-<summary>Click to Expand</summary>
-
-It’s hard enough to debug code without random effects making it even harder. In the `BaseMarkov` class you’re provided, the Random object used for random-number generation is constructed as follows:
-
-`myRandom = new Random(RANDOM_SEED);`
-
-`RANDOM_SEED` is defined to be 1234. Using the same seed to initialize the random number stream ensures that the same random numbers are generated each time you run the program. Removing `RANDOM_SEED` and using `new Random()` will result in a different set of random numbers, and thus different text, being generated each time you run the program. This is more amusing, but harder to debug. ***If you use a seed of `RANDOM_SEED` in your `EfficientMarkov` model, you should get the same random text as when the brute-force method from `BaseMarkov` is used.*** This will help you debug your program because you can check your results with those of the code you’re given which you can rely on as being correct. You'll get this behavior "for free" since the first line of your `EfficientMarkov` constructor will be `super(order)` -- which initializes the `myRandom` instance variable.
-
-</details>
-
-</details>
-
-## Overview of Programming: WordMarkov
-<details>
-<summary>Click to Expand</summary>
-
-If you change the `MarkovDriver` to use a `BaseWordMarkov` class instead of a `BaseMarkov` class then words rather than characters will be used to generate a model. You'll need a working `WordGram` class from the [Part 1 Markov Assignment](https://coursework.cs.duke.edu/201fall21/P2-Markov-Part-1). *One is provided for you to use as part of the code you clone from the Git repository*. Text generated for 50 words is shown in the [appendix](#appendix). Here a k-gram is a sequence of *k* words, e.g., a `WordGram` rather than a String of k-characters. You can generate this using `MarkovDriver` and the `BaseWordMarkov` object in that class.
-
-Just as you created `EfficientMarkov` by extending `BaseMarkov`, you'll create `EfficientWordMarkov` by extending `BaseWordMarkov`. You'll create two constructors and implement two methods similar to those in `EfficientMarkov`: `setTraining` and `getFollows`. The difference is that instead of String objects as keys in a map you'll be using `WordGram` objects as keys. You must create the `EfficientWordMarkov` class from scratch; you're not provided with starter code.
-
-### Implementing EfficientWordMarkov
-<details>
-<summary>Click to Expand</summary>
-
-You'll model this class on the `EfficientMarkov` class you've already implemented and tested. See the previous section for details. However in this version you will use `WordGram` objects as keys in a map and the instance variable String `myText` from `BaseMarkov` becomes `String[] myWords` in `BaseWordMarkov`. 
-
-You'll create two constructors in `EfficientWordMarkov`: `public EfficientWordMarkov()` and `public EfficientWordMarkov(int order)`. These constructors should be identical to those in `EfficientMarkov` (default order 3, initialize myMap to be a new HashMap).
-
-You'll need to use the code in `BaseWordMarkov` to help reason about how to write `setTraining` in `EfficientWordMarkov`. The `EfficientWordMarkov.getFollows` method is the same as in `EfficientMarkov`, though `myMap` is different. Now it's `Map<WordGram, ArrayList<String>>` since words are used rather than characters. You'll need to reason how to create the map and initialize its contents in `setTraining`.
-
-***In creating an array of words, you should use `text.split("\\s+")` to process the String passed to `setTraining` into an array of "words" separated by whitespace. You'll see this code in `BaseWordMarkov`.***
-
-Some hints about `EfficientWordMarkov` compared with `EfficientMarkov`:
-- Instance variable is `myWords` rather than `myText`, see `BaseWordMarkov` for details.
-- Instead of using `String.substring()` to create a String for every key, you'll create a new `WordGram` for every key in the map.
-- Instead of using a one-character `String` to follow each key, you'll use the appropriate `String` in `myWords` as the string that follows each key.
-- In method `getRandomText` you can call the `shiftAdd` method after finding a following word (by calling `getFollows`). Recall that `shiftAdd` creates a new `WordGram` object, you'll use this as the key for generating the next word at random.
-
-To test your class, use it in the `MarkovDriver` program and compare the output to what's generated by `BaseWordMarkov` just as you did when [Testing `EfficientMarkov`](#testing-efficientmarkov).
-</details>
-
-</details>
 
 ## Submitting, Analysis, Reflect 
 <details>
@@ -366,18 +537,6 @@ This table shows the output of different Markov Models for President Trump's Sta
 | 5 | has taughters order Patrol Agents, and together, gaining our difficult — because of the authority and that we do. I will be a major plants will determined a tube to endured by criminals and minor chi | permanent study shot an option during the productive diseases opens without our high-speed international to Americans can be first 100 Days of joy, cried out the central challenges facing nothing up. |
 </details>
 
-### What is a Markov Model?
-<details>
-<summary>Click to Expand</summary>
-
-An order-k Markov model uses strings of k-letters to predict text: these are called *k-grams*. It's also possible to use k-grams that are composed of words rather than letters. An order-2 Markov model uses two-character strings or *bigrams* to calculate probabilities in generating random letters. A string called the *training text* is used to calculate these probabilities.
-
-For example, suppose that in the text we're using for generating random letters, the so-called training text, using an order-2 Markov model, the bigram `"th"` is followed 50 times by the letter `"e"`, 20 times by the letter `"a"`, and 30 times by the letter `"o"`, because the sequences `"the"`, `"tha"`, and `"tho"` occur 50, 20, and 30 times, respectively while there are no other occurrences of `"th"` in the text we're modeling.
-
-Now suppose that in generating random text using an order-2 Markov process we generate the bigram `"th"` --- then based on this bigram we must generate the next random character using the order-2 model. The next letter will be an 'e' with a probability of 0.5 (50/100); will be an 'a' with probability 0.2 (20/100); and will be an 'o' with probability 0.3 (30/100). If 'e' is chosen, then the next bigram used to calculate random letters will be `"he"` since the last part of the old bigram is combined with the new letter to create the next bigram used in the Markov process.
-
-Rather than using probabilities explicitly, your code will use them implicitly. You'll store 50 occurrences of `"e"`, 20 occurrences of `"a"` and 30 occurrences of `"o"` in an `ArrayList`. You'll then choose one of these at random. This will replicate the probabilities, e.g., of 0.3 for `"o"` since there will be 30 `"o"` strings in the 100-element `ArrayList`.
-</details>
 
 ### Example Output of WordMarkov
 <details>
@@ -392,3 +551,4 @@ Rather than using probabilities explicitly, your code will use them implicitly. 
 | 5 | did not stay silent. America stands with the people of Iran in their courageous struggle for freedom. I am asking the Congress to end the dangerous defense sequester and fully fund our great military. As part of our defense, we must modernize and rebuild our nuclear arsenal, hopefully never having | soul of America – we need to protect the sacred right to vote. More people voted in the last presidential election than ever before in our history – in the middle of one of the worst pandemics ever. That should be celebrated. Instead it’s being attacked. Congress should pass H.R.|
 
 </details>
+
