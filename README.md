@@ -515,7 +515,7 @@ For this program grading will be:
 
 | Points | Grading Criteria |
 | ------ | ------ |
-| 16 | Correctness of EfficientMarkov and EfficientWordMarkov code. (10 for EfficientMarkov, 5 for EfficientWordMarkov, 1 for API)|
+| 16 | EfficientMarkov and EfficientWordMarkov code |
 | 6 | Answers to analysis + reflect |
 
 
