@@ -11,7 +11,7 @@ This is the directions document for Project P2 Markov Part 1 in CompSci 201 at D
 - [Developing and Testing EfficientWordMarkov](#developing-and-testing-efficientwordmarkov)
 - [Benchmarking and Analysis](#benchmarking-and-analysis)
 - [Submitting, Reflect, Grading](#submitting-reflect-grading)
-- [Appendix FAQs](#appendix-faqs)
+- [Appendix](#appendix)
 
 
 ## Introduction
@@ -429,22 +429,34 @@ The purpose of this assignment was to develop a more efficient implementation of
 
 Answer the following questions in your analysis. You'll submit your analysis as a separate PDF as a separate assignment ***to Gradescope***. 
 
-1. If there are *N* characters in the training text and we want to generate *T* characters of random text, we claimed that the runtime complexity to do so using `BaseMarkov` should be O(*N*+*T*), that is, the runtime should scale with the sum of *N* and *T*. If that is true, what would you hypothesize about the empirical runtime of the program (that is, the actual time, measured in seconds, for the program to execute)? Specifically, answer the following under the O(*N*+*T*) assumption:
-    - If we double *N* and we double *T*, how would you expect the runtime to change?
-    - If *N* is much larger than *T* and we double *T* but not *N*, how would you expect the runtime to change?
-    - If *N* is much larger than *T* and we double *N* but not *T*, how would you expect the runtime to change?
+<details>
+<summary>Question 1: Base Markov hypotheses</summary>
 
-2. If there are *N* characters in the training text and we want to generate *T* characters of random text, we claimed that the runtime complexity to do so using `EfficientMarkov` should be O(*NT*), that is, the runtime should scale with the product of *N* and *T*. If that is true, what would you hypothesize about the empirical runtime of the program (that is, the actual time, measured in seconds, for the program to execute)? Specifically, answer the following (same questions as before) under the O(*NT*) assumption:
-    - If we double *N* and we double *T*, how would you expect the runtime to change?
-    - If *N* is much larger than *T* and we double *T* but not *N*, how would you expect the runtime to change?
-    - If *N* is much larger than *T* and we double *N* but not *T*, how would you expect the runtime to change?
+If there are *N* characters in the training text and we want to generate *T* characters of random text, we claimed that the runtime complexity to do so using `BaseMarkov` should be O(*N*+*T*), that is, the runtime should scale with the sum of *N* and *T*. If that is true, what would you hypothesize about the empirical runtime of the program (that is, the actual time, measured in seconds, for the program to execute)? Specifically, answer the following under the O(*N*+*T*) assumption:
 
-3. The starter code includes a class called `Benchmark`. Running the psvm method of that class runs several tests that allow you to compare the performance (in terms of the program runtime) of the default, brute-force `BaseMarkov` and the more efficient map-based `EfficientMarkov` code. The code you start with uses `data/hawthorne.txt`, which is the text of ***A Scarlet Letter***, a text of 487,614 characters (as you'll see in the output when running the benchmark tests). 
+- If we double *N* and we double *T*, how would you expect the runtime to change?
+- If *N* is much larger than *T* and we double *T* but not *N*, how would you expect the runtime to change?
+- If *N* is much larger than *T* and we double *N* but not *T*, how would you expect the runtime to change?
 
-The expandable section below shows the output of running the main method of `Benchmark` using `BaseMarkov` on staff laptop using the default file and an order 5 Markov Model. Note that the individual numbers may vary somewhat on your laptop, it is the pattern of growth that interests us.
+</details>
 
 <details>
-<summary>Expand here for example Benchmark run using BaseMarkov</summary>
+<summary>Question 2: Efficient Markov hypotheses</summary>
+
+If there are *N* characters in the training text and we want to generate *T* characters of random text, we claimed that the runtime complexity to do so using `EfficientMarkov` should be O(*NT*), that is, the runtime should scale with the product of *N* and *T*. If that is true, what would you hypothesize about the empirical runtime of the program (that is, the actual time, measured in seconds, for the program to execute)? Specifically, answer the following (same questions as before) under the O(*NT*) assumption:
+
+- If we double *N* and we double *T*, how would you expect the runtime to change?
+- If *N* is much larger than *T* and we double *T* but not *N*, how would you expect the runtime to change?
+- If *N* is much larger than *T* and we double *N* but not *T*, how would you expect the runtime to change?
+
+</details>
+
+<details>
+<summary>Question 3: BaseMarkov Benchmark</summary>
+
+The starter code includes a class called `Benchmark`. Running the psvm method of that class runs several tests that allow you to compare the performance (in terms of the program runtime) of the default, brute-force `BaseMarkov` and the more efficient map-based `EfficientMarkov` code. The code you start with uses `data/hawthorne.txt`, which is the text of ***A Scarlet Letter***, a text of 487,614 characters (as you'll see in the output when running the benchmark tests). 
+
+The table below shows the output of running the main method of `Benchmark` using `BaseMarkov` on staff laptop using the default file and an order 5 Markov Model. Note that the individual numbers may vary somewhat on your laptop, it is the pattern of growth that interests us.
 
 source is *N*, the size of the training text, and #chars is *T*, the number of random characters being generated. First the `Benchmark` program holds *N* constant and increases *T*. 
 
@@ -469,38 +481,50 @@ Then the `Benchmark` program holds *T* constant and increases *N*.
 |2.121   |2925684 |4096 |
 |2.531   |3413298 |4096 |
 
-</details>
-
 Explain whether the timings presented in the example provide evidence supporting the characterization of the runtime complexity using `BaseMarkov` as O(*NT*). Reference the actual timings in the example, as well as the hypotheses you made in questions 1 and 2.
 
-4. The `Benchmark` class uses `BaseMarkov` by default, but you can change it to use your `EfficientMarkov` by changing the appropriate line in the `getMarkov` method called from the main method. Make that change and run the `Benchmark` program to determine how long it takes for `EfficientMarkov` to generate random characters using the default file and an order 5 Markov Model. ***Report your timings.*** Explain whether the timings you report provide evidence supporting the characterization of the runtime complexity using `EfficientMarkov` as O(*N*+*T*). Reference the actual timings you report, as well as the hypotheses you made in questions 1 and 2.
+</details>
 
-5. Markov models like the one you implemented in this project are one example of a larger research area in artificial intelligence (AI) and machine learning (ML) related called *generative models* for *natural language processing*. Currently, one of the state-of-the-art models is called GPT-3. It is not *open-source*, meaning that the underlying source code of the model is not freely available. Read this short article about open source code in artificial intelligence: *Can’t Access GPT-3? Here’s GPT-J — Its Open-Source Cousin* [accessible via this link](https://towardsdatascience.com/cant-access-gpt-3-here-s-gpt-j-its-open-source-cousin-8af86a638b11). Do you think new research code in AI/ML should be more open source? Why, or why not? There is no right or wrong answer to this question, we are looking for one or two paragraphs of thoughtful reflection.
+<details>
+<summary>Question 4: EfficientMarkov Benchmark</summary>
+
+The `Benchmark` class uses `BaseMarkov` by default, but you can change it to use your `EfficientMarkov` by changing the appropriate line in the `getMarkov` method called from the main method. Make that change and run the `Benchmark` program to determine how long it takes for `EfficientMarkov` to generate random characters using the default file and an order 5 Markov Model. ***Report your timings.*** Explain whether the timings you report provide evidence supporting the characterization of the runtime complexity using `EfficientMarkov` as O(*N*+*T*). Reference the actual timings you report, as well as the hypotheses you made in questions 1 and 2.
+
+</details>
+
+<details>
+<summary>Question 5: Open source AI models</summary>
+
+Markov models like the one you implemented in this project are one example of a larger research area in artificial intelligence (AI) and machine learning (ML) related called *generative models* for *natural language processing*. Currently, one of the state-of-the-art models is called GPT-3. It is not *open-source*, meaning that the underlying source code of the model is not freely available. Read this short article about open source code in artificial intelligence: *Can’t Access GPT-3? Here’s GPT-J — Its Open-Source Cousin* [accessible via this link](https://towardsdatascience.com/cant-access-gpt-3-here-s-gpt-j-its-open-source-cousin-8af86a638b11). Do you think new research code in AI/ML should be more open source? Why, or why not? There is no right or wrong answer to this question, we are looking for one or two paragraphs of thoughtful reflection.
+
+</details>
 
 ***After completing the analysis questions you submit your answers in a PDF to Gradescope in the appropriate assignment.***
 
 
-### Reflect
+## Submitting, Reflect, Grading
 
-Answer questions in this form: https://docs.google.com/forms/d/e/1FAIpQLSfsEbHxVJSP3GwxTGf17FaS8FjAvzb9cyhpfKwBouKTsDVV8Q/viewform 
+Push your code to Git. Do this often. Once you have run and tested your completed program locally:
 
-### Grading
+1. Submit your code on gradescope to the autograder.
+2. Submit a PDF to Gradescope in the separate P3: Analysis assignment.
+3. Complete the [reflect form linked here]().
+
 
 For this program grading will be:
 
 | Points | Grading Criteria |
 | ------ | ------ |
 | 16 | Correctness of EfficientMarkov and EfficientWordMarkov code. (10 for EfficientMarkov, 5 for EfficientWordMarkov, 1 for API)|
-| 6 | Answers to analysis questions |
-| 2 | Reflect form |
+| 6 | Answers to analysis + reflect |
 
-</details>
 
 ## Appendix
-<details>
-<summary>Click to Expand</summary>
 
-### Assignment FAQ
+You don't need to read this section, but some of the information might be helpful.
+
+<details>
+<summary>Expand for FAQs about this project</summary>
 
 **My unchanged `BaseMarkov` does not produce the same output as reported above or does not give the correct number of characters as described in `analysis.txt`.** 
 
@@ -529,11 +553,13 @@ If you use the same `RANDOM_SEED` in constructing the random number generator us
  
 The code is encountering the EOS tag too soon and then exiting - look over where you’re adding the EOS tag.
 
-### Output of MarkovDriver
-<details>
-<summary>Click to Expand</summary>
+</details>
 
-This table shows the output of different Markov Models for President Trump's State of the Union address in 2017 and President Bush's State of the Union address in 2007. 
+
+<details>
+<summary>More example output</summary>
+
+This table shows more example output of different Markov Models generating characters. 
 
 | k | President Trump State of the Union 2017 | President Biden State of the Union 2021 |
 | - | ------                                  | ------                                 |
@@ -542,12 +568,8 @@ This table shows the output of different Markov Models for President Trump's Sta
 | 3 | f us the pracificity othe including. Pare workers of his Capitol, meets with in againspire food there need. Aftere in our strain. We regislast, homento uneminists, them, thinally are top prover our Go | irst on pock of their a Medica’s demong Right ten andame failesses at I know – it we cans by bet why time to said by more imple. We ass the wrong the nation a your drugs. Tonighternet, and in Famillio |
 | 4 | arriorities why, this like Congressure the nearly 400, incoln an incredible to hardships are build our countain minor Otto join me it, but where break to than $4,000 — so Americans — manufacture of St | life can will crising the faucet again. The world. Talk away. So how right — and get by negotiating than 400,000 pharmacism to be big tax brack up. That I’m provided to act police President have act. |
 | 5 | has taughters order Patrol Agents, and together, gaining our difficult — because of the authority and that we do. I will be a major plants will determined a tube to endured by criminals and minor chi | permanent study shot an option during the productive diseases opens without our high-speed international to Americans can be first 100 Days of joy, cried out the central challenges facing nothing up. |
-</details>
 
-
-### Example Output of WordMarkov
-<details>
-<summary>Click to Expand</summary>
+This table shows more example output of Markov models using `WordGram`s.
 
 | k | President Trump State of the Union 2017 | President Biden State of the Union 2021 |
 | - | ------                                  | ------                                 |
