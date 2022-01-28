@@ -423,24 +423,31 @@ You must create the `EfficientWordMarkov` class from scratch; you're not provide
 To test your class, use it in the `MarkovDriver` program and compare the output to what's generated using `BaseWordMarkov` just as you did when [testing `EfficientMarkov`](#running-and-testing-efficientmarkov). Again, you should get the same results but in less time.
 
 
-## Submitting, Analysis, Reflect 
+## Benchmarking and Analysis
+
+The purpose of this assignment was to develop a more efficient implementation of a Markov model than the basic implementation provided in the starter code. In this section, you will analyze the runtime performance of these models, first by answering conceptual questions to form hypotheses, then by considering empirical runtime performance that supports or contradicts your hypotheses. This section will only require you to answer questions about the `BaseMarkov` and `EfficientMarkov`, so you can still complete the analysis even if you were not able to complete the implementation of `EfficientWordMarkov`.
+
+Answer the following questions in your analysis. You'll submit your analysis as a separate PDF as a separate assignment ***to Gradescope***. 
+
+1. If there are *N* characters in the training text and we want to generate *T* characters of random text, we claimed that the runtime complexity to do so using `BaseMarkov` should be O(*N*+*T*), that is, the runtime should scale with the sum of *N* and *T*. If that is true, what would you hypothesize about the empirical runtime of the program (that is, the actual time, measured in seconds, for the program to execute)? Specifically, answer the following under the O(*N*+*T*) assumption:
+    - If we double *N* and we double *T*, how would you expect the runtime to change?
+    - If *N* is much larger than *T* and we double *T* but not *N*, how would you expect the runtime to change?
+    - If *N* is much larger than *T* and we double *N* but not *T*, how would you expect the runtime to change?
+
+2. If there are *N* characters in the training text and we want to generate *T* characters of random text, we claimed that the runtime complexity to do so using `EfficientMarkov` should be O(*NT*), that is, the runtime should scale with the product of *N* and *T*. If that is true, what would you hypothesize about the empirical runtime of the program (that is, the actual time, measured in seconds, for the program to execute)? Specifically, answer the following (same questions as before) under the O(*NT*) assumption:
+    - If we double *N* and we double *T*, how would you expect the runtime to change?
+    - If *N* is much larger than *T* and we double *T* but not *N*, how would you expect the runtime to change?
+    - If *N* is much larger than *T* and we double *N* but not *T*, how would you expect the runtime to change?
+
+3. The starter code includes a class called `Benchmark`. Running the psvm method of that class runs several tests that allow you to compare the performance (in terms of the program runtime) of the default, brute-force `BaseMarkov` and the more efficient map-based `EfficientMarkov` code. The code you start with uses `data/hawthorne.txt`, which is the text of ***A Scarlet Letter***, a text of 487,614 characters (as you'll see in the output when running the benchmark tests). 
+
+The expandable section below shows the output of running the main method of `Benchmark` using `BaseMarkov` on staff laptop using the default file and an order 5 Markov Model. Note that the individual numbers may vary somewhat on your laptop, it is the pattern of growth that interests us.
+
 <details>
-<summary>Click to Expand</summary>
+<summary>Expand here for example Benchmark run using BaseMarkov</summary>
 
-### Code
-Push your code to Git. Do this often. You can use the autograder on Gradescope to test your code. You should NOT complete the reflect form until you're done with all the coding portion of the assignment. Since you may uncover bugs from the autograder, you should wait until you've completed debugging and coding before completing the reflect form.
+source is *N*, the size of the training text, and #chars is *T*, the number of random characters being generated. First the `Benchmark` program holds *N* constant and increases *T*. 
 
-### Analysis
-<details>
-<summary>Click to Expand</summary>
-
-You're given a class `Benchmark` that runs several tests that allow you to compare the performance (in terms of the program runtime) of the default, brute-force `BaseMarkov` and the more efficient map-based `EfficientMarkov` code. The code you start with uses `data/hawthorne.txt`, which is the text of ***A Scarlet Letter***, a text of 487,614 characters (as you'll see in the output when running the benchmark tests). The class uses `BaseMarkov`, but can be easily changed to use `EfficientMarkov` by changing the appropriate line in the `getMarkov` method called from main. You're free to alter this class.
-
-Answer the following questions in your analysis. You'll submit your analysis as a separate PDF as a separate assignment ***to Gradescope***. Note that we are not looking for particular numbers so much as reasonable interpretations of your results.
-
-1. *Change made on 5:30 PM on Sept 25: Use provided data rather than run your own*. 
-
-Use this data for `BaseMarkov` run on staff laptop via the `BenchMark` program using the default file and an order 5 Markov Model.
 |time |   source | #chars |
 |------|--------|------|
 |0.107   |487614  |1000 |
@@ -450,7 +457,7 @@ Use this data for `BaseMarkov` run on staff laptop via the `BenchMark` program u
 |2.825   |487614  |32000 |
 |5.674   |487614  |64000 |
 
-The program also generates 4,096 characters using texts that increase in size from 487,614 characters to 4,876,140 characters (10 times the number).  This data is shown below.
+Then the `Benchmark` program holds *T* constant and increases *N*.
 
 |time |   source | #chars |
 |------|--------|------|
@@ -462,16 +469,16 @@ The program also generates 4,096 characters using texts that increase in size fr
 |2.121   |2925684 |4096 |
 |2.531   |3413298 |4096 |
 
+</details>
 
-In your analysis file, include an explanation as to whether the timings support the O(*NT*) quadratic growth analysis. That is, do your timings suggest that the running time scales with the product of the size of the training text *N* and the number of characters to be generated *T*. Use the fact that for some runs *N* is fixed and *T* varies whereas in the other runs *T* is fixed and *N* varies.
+Explain whether the timings presented in the example provide evidence supporting the characterization of the runtime complexity using `BaseMarkov` as O(*NT*). Reference the actual timings in the example, as well as the hypotheses you made in questions 1 and 2.
 
-2. Determine (from running `Benchmark.java`) how long it takes for `EfficientMarkov` to generate 2,000, 4,000, 8,000, 16,000, and 32,000 random characters using the default file and an order 5 Markov Model. Include these timings in your report. The program also generates 4,096 characters using texts that increase in size from 487,614 characters to 4,876,140 characters (10 times the number). In your analysis file include an explanation as to whether the timings support the O(*N*+*T*) analysis. That is, do your timings suggest that the running time scales with the sum of the size of the training text *N* and the number of characters to be generated *T*.
+4. The `Benchmark` class uses `BaseMarkov` by default, but you can change it to use your `EfficientMarkov` by changing the appropriate line in the `getMarkov` method called from the main method. Make that change and run the `Benchmark` program to determine how long it takes for `EfficientMarkov` to generate random characters using the default file and an order 5 Markov Model. ***Report your timings.*** Explain whether the timings you report provide evidence supporting the characterization of the runtime complexity using `EfficientMarkov` as O(*N*+*T*). Reference the actual timings you report, as well as the hypotheses you made in questions 1 and 2.
 
-3. Read the article *Can’t Access GPT-3? Here’s GPT-J — Its Open-Source Cousin* accessible via this link: https://towardsdatascience.com/cant-access-gpt-3-here-s-gpt-j-its-open-source-cousin-8af86a638b11 . Describe any thoughts you have about the article as it relates to this assignment. 
+5. Markov models like the one you implemented in this project are one example of a larger research area in artificial intelligence (AI) and machine learning (ML) related called *generative models* for *natural language processing*. Currently, one of the state-of-the-art models is called GPT-3. It is not *open-source*, meaning that the underlying source code of the model is not freely available. Read this short article about open source code in artificial intelligence: *Can’t Access GPT-3? Here’s GPT-J — Its Open-Source Cousin* [accessible via this link](https://towardsdatascience.com/cant-access-gpt-3-here-s-gpt-j-its-open-source-cousin-8af86a638b11). Do you think new research code in AI/ML should be more open source? Why, or why not? There is no right or wrong answer to this question, we are looking for one or two paragraphs of thoughtful reflection.
 
 ***After completing the analysis questions you submit your answers in a PDF to Gradescope in the appropriate assignment.***
 
-</details>
 
 ### Reflect
 
