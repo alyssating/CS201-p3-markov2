@@ -16,9 +16,9 @@ This is the directions document for Project P2 Markov Part 1 in CompSci 201 at D
 
 ## Introduction
 
-This is the second part of [Project P2, Markov Part 1](https://coursework.cs.duke.edu/201spring22/p2-markov-part-1). In part 1, you developed a `WordGram` class to represent an immutable sequence of a given number of words (2-grams, 3-grams, etc.). In part 2 (this part) you will use a generative model to create realistic looking text in a data-driven algorithmic way using a **Markov Model**. The first version of this generative model you develop uses Strings of characters as its basic object; the second version uses `WordGram`s as its basic object. You do **not** need to use your own `WordGram` implementaiton for this part, we have provided a complete implementation in the starter code for this project.
+This is the second part of [Project P2, Markov Part 1](https://coursework.cs.duke.edu/201spring22/p2-markov-part-1). In part 1, you developed a `WordGram` class to represent an immutable sequence of a given number of words (2-grams, 3-grams, etc.). In part 2 (this part) you will use a generative model to create realistic looking text in a data-driven algorithmic way using a **Markov Model**. The first version of this generative model you develop uses Strings of characters as its basic object; the second version uses `WordGram`s as its basic object. You do **not** need to use your own `WordGram` implementation for this part, we have provided a complete implementation in the starter code for this project.
 
-The starter code includes correct but inefficient implementations of Markov Models for both Strings of characters (`BaseMarkov`) and `WordGram`s (`BaseWordMarkov`). Unlike previous projecs, your goal here is not just to write code that works, but to `extend` these models and make them more efficient using `HashMap` data structures. You will implement `EfficientMarkov` (an incomplete outline of which is included in the starter code) and `EfficientWordMarkov` (which you will create on your own), verify that they work the same as the inefficient `BaseMarkov` and `BaseWordMarkov`, and analyze the performance using a benchmarking program.
+The starter code includes correct but inefficient implementations of Markov Models for both Strings of characters (`BaseMarkov`) and `WordGram`s (`BaseWordMarkov`). Unlike previous projecs, your goal here is not just to write code that works, but to `extend` these models and make them more efficient using `HashMap` data structures. You will implement `EfficientMarkov` (an outline of which is included in the starter code) and `EfficientWordMarkov` (which you will create on your own), verify that they work the same as the inefficient `BaseMarkov` and `BaseWordMarkov`, and analyze the performance using a benchmarking program.
 
 
 ### What is a Markov Model?
@@ -46,9 +46,7 @@ We'll be using Git and the installation of GitLab at [coursework.cs.duke.edu](ht
 
 ## Running and Understanding the Starter Code
 
-All Markov Models in this project must implement the `MarkovInterface` provided. The starter code provides two correct but inefficient implementations: `BaseMarkov` and `BaseWordMarkov`. `BaseMarkov` provides a correct but inefficient implementation of the generative Markov model for creating text using k-grams, and `MarkovDriver` uses such a model trained on some data to print text that is random but looks similar to the data on which the model was trained. 
-
-You will `extend` these when creating your own `EfficientMarkov` and `EfficientWordMarkov` implementations, meaning you will *inherit* all of the instance variables and methods from those classes, but you will also override and change some aspects to make them more efficient. 
+All Markov Models in this project must implement the `MarkovInterface` provided. The starter code provides two correct but inefficient implementations: `BaseMarkov` and `BaseWordMarkov`. `BaseMarkov` provides a correct but inefficient implementation of the generative Markov model for creating text using k-grams, and `MarkovDriver` uses such a model trained on some data to print text that is random but looks similar to the data on which the model was trained.  
 
 The starter code also provides `MarkovDriver` which includes a psvm method for generating text using one of the models. You should be able to run the psvm method in `MarkovDriver` immediately. By default, the starter code uses `BaseMarkov` to create random text using k-characters at a time to predict text based on President Biden's 2021 State of the Union Address. You should see five different output examples of 144 characters each, generated with k ranging from 1 to 5. Expand below to see the expected output. Note that you should see the same text, but the time at the end will be different on your particular machine.
 
@@ -272,11 +270,10 @@ total time = 0.269
 ```
 </details>
 
-Two particular things you might note about using `data/alice.txt` instead of `data/biden-2021.txt`. First and most obviously, the text looks very different based on the different language used in the two training texts. Second, the *total time* it took to generate the text using `data/alice.txt` was much longer than the time it took using `data/biden-2021.txt`.
 
 ### BaseMarkov
 
-`BaseMarkov` provides simple implementations of the methods defined in the interface `MarkovInterface`. Your `EfficientMarkov` will `extend` the `BaseMarkov` class, meaning it wil have, by default, have the same instance variables and methods. To make it more efficient, you will `@Override` the `setTraining` and `getFollows` methods inherited from `BaseMarkov`. Before describing how to create the more efficient version, read the expandable sections below to understand how the `BaseMarkov` versions work.
+`BaseMarkov` provides simple implementations of the methods defined in the interface `MarkovInterface`. Before describing how to create the more efficient version, read the expandable sections below to understand how the `BaseMarkov` versions work.
 
 <details>
 <summary>Expand for description of `getRandomText()` in `BaseMarkov`</summary>
@@ -320,7 +317,7 @@ Generating each random character requires scanning the entire training text to f
 
 ## Developing and Testing EfficientMarkov
 
-The starter code should already include `EfficientMarkov`. You will note that it `extends BaseMarkov`, meaning that every object of `EfficientMarkov` also has all of the instance variables and methods included in `BaseMarkov`, with the same implementation of those methods by default (this is called **inheritance** in object-oriented programming). To `EfficientMarkov` more efficient, you will see that the starter code `@Override`s two methods: `setTraining` and `getFollows`. You need to complete the implementation of these two methods as described below.
+The starter code should already include `EfficientMarkov`. You will note that it `extends BaseMarkov`, meaning that every object of `EfficientMarkov` also has all of the instance variables and methods included in `BaseMarkov`, with the same implementation of those methods by default (this is called **inheritance** in object-oriented programming). To make `EfficientMarkov` more efficient, you will see that the starter code `@Override`s two methods: `setTraining` and `getFollows`. You need to complete the implementation of these two methods as described below.
 
 <details>
 <summary>Expand for Details on the constructor for EfficientMarkov</summary>
@@ -331,12 +328,16 @@ One constructor has the order of the markov model as a parameter and the other d
 
 ### Reasoning about Efficiency of `EfficientMarkov`
 
-Calling `BaseMarkov.getFollows` requires looping over the training text of size *N*. In the class `EfficientMarkov`, you'll improve the efficiency of `getFollows` by making it a constant time operation. In order to accomplish this, you will use the `HashMap` instance variable called `myMap` in `getFollows`. 
+Calling `BaseMarkov.getFollows` requires looping over the training text of size *N*. In the class `EfficientMarkov`, you'll improve the efficiency of `getFollows` by making it a constant time operation. In order to accomplish this, you will use the `HashMap` instance variable called `myMap` in `getFollows`. Expand below for details.
+
+<details>
+<summary>Expand for details on complexity of EfficientMarkov</summary>
 
 In `EfficientMarkov`, instead of rescanning the entire text of *N* characters each time `getFollows` is called (as in `BaseMarkov`), the `setTraining` method should instead scan through the training text of size *N* once and store each unique k-gram as a key in the instance variable `myMap`, with the characters/single-char strings that follow the k-gram in a list associated as the value of the key. Then, `getFollows(key)` should simply perform a lookup operation in `myMap` to return the list that follows `key`.
 
-Algorither, this should result in a complexity of O(*N*+*T*) for `EfficientMarkov`: `*N*` to run `setTraining` once, and then `*T*` calls to the now constant time `getFollows` method to generate `*T*` random characters. We call this linear complexity as opposed to the O(*NT*) quadratic complexity of `BaseMarkov`.
+Algorither, this should result in a complexity of O(*N*+*T*) for `EfficientMarkov`: *N* to run `setTraining` once, and then *T* calls to the now constant time `getFollows` method to generate *T* random characters. We call this linear complexity as opposed to the O(*NT*) quadratic complexity of `BaseMarkov`.
 
+</details>
 
 ### Implementing setTraining
 
@@ -344,7 +345,7 @@ You must set `myText` to the parameter text as the first line in your new `setTr
 
 For `getFollows` to function correctly, even the first time it is called, you'll clear and initialize the map when the overridden method `setTraining` method is called. At the beginning of your method, after setting the value of `myText`, write `myMap.clear()` to accomplish this.
 
-Now implement the `setTraining` method. The discussion above about the efficiency of `EfficientMarkov` introduces how the method should work, we also provide a detailed example in the expandable section below. **The example also highlights the PSEUDO_EOS character, an important special case.**
+Now implement the `setTraining` method. The discussion above about the efficiency of `EfficientMarkov` introduces how the method should work, and we also provide a detailed example in the expandable section below. **The example also highlights the PSEUDO_EOS character, an important special case.**
 
 <details>
 <summary>Expand for example of EfficientMarkov and PSEUDO_EOS</summary>
@@ -394,7 +395,7 @@ The code in this version of `getFollows` is constant time because if the key is 
 
 To test that your code is still correct but more efficient, you can run `MarkovDriver` (see [Running and Understanding the Starter Code](#running-and-understanding-the-starter-code)) twice using with everything the same except once using your `EfficientMarkov` model and the other time using the `BaseMarkov` model. You change this by uncommenting the line `MarkovInterface<String> efficient = new EfficientMarkov();` and then passing the `efficient` object to the call to the static `markovGenerate` method within the psvm method of `MarkovDriver`.  You should get the same text, but the running time (shown at the bottom of the output) should be less for `EfficientMarkov`.
 
-***Note on the random seed: You will see that `BaseMarkov` sets a `RANDOM_SEED` to `1234`. This is to ensure that running the same program on the same inputs twice generates the same output. We recommend you not change the seed while developing and testing your program so you can compare output. Also, if you change the seed later, be sure to set it back to `1234` for running JUnit tests or submitting to Gradescope.***  
+***Note on the random seed:*** You will see that `BaseMarkov` sets a `RANDOM_SEED` to `1234`. This is to ensure that running the same program on the same inputs twice generates the same output. We recommend you not change the seed while developing and testing your program so you can compare output. Also, if you change the seed later, be sure to set it back to `1234` for running JUnit tests or submitting to Gradescope.
 
 In addition to running `MarkovDriver` using `EfficientMarkov` and comparing the results to using `BaseMarkov`, we also provide JUnit tests in the `MarkovTest` class. ***You will need to change the class being tested that's returned by the method `getModel`***. See the [section in the P2 Markov Part 1 directions](https://coursework.cs.duke.edu/201spring22/p2-markov-part-1/-/tree/main#junit-tests) on how to run a Java program that uses JUnit tests.
 
@@ -432,7 +433,7 @@ Answer the following questions in your analysis. You'll submit your analysis as 
 <details>
 <summary>Question 1: Base Markov hypotheses</summary>
 
-If there are *N* characters in the training text and we want to generate *T* characters of random text, we claimed that the runtime complexity to do so using `BaseMarkov` should be O(*N*+*T*), that is, the runtime should scale with the sum of *N* and *T*. If that is true, what would you hypothesize about the empirical runtime of the program (that is, the actual time, measured in seconds, for the program to execute)? Specifically, answer the following under the O(*N*+*T*) assumption:
+If there are *N* characters in the training text and we want to generate *T* characters of random text, we claimed that the runtime complexity to do so using `BaseMarkov` should be O(*NT*), that is, the runtime should scale with the product of *N* and *T*. If that is true, what would you hypothesize about the empirical runtime of the program (that is, the actual time, measured in seconds, for the program to execute)? Specifically, answer the following under the O(*NT*) assumption:
 
 - If we double *N* and we double *T*, how would you expect the runtime to change?
 - If *N* is much larger than *T* and we double *T* but not *N*, how would you expect the runtime to change?
@@ -443,7 +444,7 @@ If there are *N* characters in the training text and we want to generate *T* cha
 <details>
 <summary>Question 2: Efficient Markov hypotheses</summary>
 
-If there are *N* characters in the training text and we want to generate *T* characters of random text, we claimed that the runtime complexity to do so using `EfficientMarkov` should be O(*NT*), that is, the runtime should scale with the product of *N* and *T*. If that is true, what would you hypothesize about the empirical runtime of the program (that is, the actual time, measured in seconds, for the program to execute)? Specifically, answer the following (same questions as before) under the O(*NT*) assumption:
+If there are *N* characters in the training text and we want to generate *T* characters of random text, we claimed that the runtime complexity to do so using `EfficientMarkov` should be O(*N*+*T*), that is, the runtime should scale with the sum of *N* and *T*. If that is true, what would you hypothesize about the empirical runtime of the program (that is, the actual time, measured in seconds, for the program to execute)? Specifically, answer the following (same questions as before) under the O(*N*+*T*) assumption:
 
 - If we double *N* and we double *T*, how would you expect the runtime to change?
 - If *N* is much larger than *T* and we double *T* but not *N*, how would you expect the runtime to change?
