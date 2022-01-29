@@ -18,7 +18,7 @@ This is the directions document for Project P2 Markov Part 1 in CompSci 201 at D
 
 This is the second part of [Project P2, Markov Part 1](https://coursework.cs.duke.edu/201spring22/p2-markov-part-1). In part 1, you developed a `WordGram` class to represent an immutable sequence of a given number of words (2-grams, 3-grams, etc.). In part 2 (this part) you will use a generative model to create realistic looking text in a data-driven algorithmic way using a **Markov Model**. The first version of this generative model you develop uses Strings of characters as its basic object; the second version uses `WordGram`s as its basic object. You do **not** need to use your own `WordGram` implementation for this part, we have provided a complete implementation in the starter code for this project.
 
-The starter code includes correct but inefficient implementations of Markov Models for both Strings of characters (`BaseMarkov`) and `WordGram`s (`BaseWordMarkov`). Unlike previous projecs, your goal here is not just to write code that works, but to `extend` these models and make them more efficient using `HashMap` data structures. You will implement `EfficientMarkov` (an outline of which is included in the starter code) and `EfficientWordMarkov` (which you will create on your own), verify that they work the same as the inefficient `BaseMarkov` and `BaseWordMarkov`, and analyze the performance using a benchmarking program.
+The starter code includes correct but inefficient implementations of Markov Models for both Strings of characters (`BaseMarkov`) and `WordGram`s (`BaseWordMarkov`). Unlike previous projects, your goal here is not just to write code that works, but to `extend` these models and make them more efficient using a `HashMap` data structure. You will implement `EfficientMarkov` (an outline of which is included in the starter code) and `EfficientWordMarkov` (which you will create on your own), verify that they work the same as the inefficient `BaseMarkov` and `BaseWordMarkov`, and analyze the performance using a benchmarking program.
 
 
 ### What is a Markov Model?
@@ -328,24 +328,20 @@ One constructor has the order of the markov model as a parameter and the other d
 
 ### Reasoning about Efficiency of `EfficientMarkov`
 
-Calling `BaseMarkov.getFollows` requires looping over the training text of size *N*. In the class `EfficientMarkov`, you'll improve the efficiency of `getFollows` by making it a constant time operation. In order to accomplish this, you will use the `HashMap` instance variable called `myMap` in `getFollows`. Expand below for details.
-
-<details>
-<summary>Expand for details on complexity of EfficientMarkov</summary>
+Calling `BaseMarkov.getFollows` requires looping over the training text of size *N*. In the class `EfficientMarkov`, you'll improve the efficiency of `getFollows` by making it a constant time operation. In order to accomplish this, you will use the `HashMap` instance variable called `myMap` in `getFollows`.
 
 In `EfficientMarkov`, instead of rescanning the entire text of *N* characters each time `getFollows` is called (as in `BaseMarkov`), the `setTraining` method should instead scan through the training text of size *N* once and store each unique k-gram as a key in the instance variable `myMap`, with the characters/single-char strings that follow the k-gram in a list associated as the value of the key. Then, `getFollows(key)` should simply perform a lookup operation in `myMap` to return the list that follows `key`.
 
-Algorither, this should result in a complexity of O(*N*+*T*) for `EfficientMarkov`: *N* to run `setTraining` once, and then *T* calls to the now constant time `getFollows` method to generate *T* random characters. We call this linear complexity as opposed to the O(*NT*) quadratic complexity of `BaseMarkov`.
+This should result in a complexity of O(*N*+*T*) for `EfficientMarkov`: *N* to run `setTraining` once, and then *T* calls to the now constant time `getFollows` method to generate *T* random characters. We call this linear complexity as opposed to the O(*NT*) quadratic complexity of `BaseMarkov`.
 
-</details>
 
 ### Implementing setTraining
 
-You must set `myText` to the parameter text as the first line in your new `setTraining` implementation. You can do this directly, or by calling `super.setTraining(text)`.
+You must set `myText` to the parameter text as the first line in your new `setTraining` implementation. You can do this directly, or by calling `super.setTraining(text)`. This is written in the starter code for you.
 
-For `getFollows` to function correctly, even the first time it is called, you'll clear and initialize the map when the overridden method `setTraining` method is called. At the beginning of your method, after setting the value of `myText`, write `myMap.clear()` to accomplish this.
+You will then need to clear and initialize the map. **At the beginning of your method, after setting the value of `myText`, write `myMap.clear()` to accomplish this.**
 
-Now implement the `setTraining` method. The discussion above about the efficiency of `EfficientMarkov` introduces how the method should work, and we also provide a detailed example in the expandable section below. **The example also highlights the PSEUDO_EOS character, an important special case.**
+Now implement the rest of the `setTraining` method. The discussion above about the efficiency of `EfficientMarkov` introduces how the method should work, and we also provide a detailed example in the expandable section below. **The example also highlights the PSEUDO_EOS character, an important special case.**
 
 <details>
 <summary>Expand for example of EfficientMarkov and PSEUDO_EOS</summary>
