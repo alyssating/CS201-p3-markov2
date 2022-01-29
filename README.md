@@ -337,9 +337,7 @@ This should result in a complexity of O(*N*+*T*) for `EfficientMarkov`: *N* to r
 
 ### Implementing setTraining
 
-You must set `myText` to the parameter text as the first line in your new `setTraining` implementation. You can do this directly, or by calling `super.setTraining(text)`. This is written in the starter code for you.
-
-You will then need to clear and initialize the map. **At the beginning of your method, after setting the value of `myText`, write `myMap.clear()` to accomplish this.**
+`myText` must be set to the parameter text as the first line in your new `setTraining` implementation. You can do this directly, or by calling `super.setTraining(text)`. Next, the instance variable `myMap` must be cleared, by writing `myMap.clear()`. These steps are included in the starter code for you.
 
 Now implement the rest of the `setTraining` method. The discussion above about the efficiency of `EfficientMarkov` introduces how the method should work, and we also provide a detailed example in the expandable section below. **The example also highlights the PSEUDO_EOS character, an important special case.**
 
