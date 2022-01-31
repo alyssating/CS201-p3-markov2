@@ -93,4 +93,24 @@ public class MarkovTest {
 				);
 	}
 
+	/**
+	 * Added Spring 2021
+	 * This test checks if the given MarkovInterface returns an ArrayList<String>
+	 * for getFollows(final character) that contains PSEUDO_EOS.
+	 */
+	@Test
+	public void testPSEUDO_EOS_Basic() {
+		String testString = "qwerty";
+		final ArrayList<String> finalList = assertTimeout(Duration.ofMillis(10000),()->{
+	
+			MarkovInterface<String> markov = getModel(1);
+			markov.setTraining(testString);
+			return markov.getFollows("y");
+		});
+		//The following test assumes that EfficientMarkov.PSEUDO_EOS = EfficientWordMarkov.PSEUDO_EOS = BaseMarkov.PSEUDO_EOS
+		assertTrue(finalList.contains(BaseMarkov.PSEUDO_EOS), 
+			"This test checks if MarkovModel returns an ArrayList containing PSEUDO_EOS");
+	}
+
+
 }
