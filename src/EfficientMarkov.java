@@ -16,7 +16,8 @@ public class EfficientMarkov extends BaseMarkov {
 	public void setTraining(String text) {
 		super.setTraining(text);
 		myMap.clear();
-		for (int i = 0; i < text.length() - myOrder; i++) {
+		
+		for (int i = 0; i <= text.length() - myOrder; i++) {
 			String str = text.substring(i, i+myOrder);
 
 			// add it to myMap
@@ -35,11 +36,10 @@ public class EfficientMarkov extends BaseMarkov {
 	@Override
 	public ArrayList<String> getFollows(String key) {
 		// TODO: Implement getFollows
-
-		if (!myMap.containsKey(key)) {
-			throw new NoSuchElementException(key+" not in map");
-		} else {
+		if (myMap.containsKey(key)){
 			return myMap.get(key);
+		} else {
+			throw new NoSuchElementException(key+" not in map");
 		}
 	}
 }	
